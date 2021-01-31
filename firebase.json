@@ -1,0 +1,19 @@
+{
+  "hosting": [
+    {
+      "target": "timeKeeper",
+      "public": "dist/timeKeeper",
+      "ignore": [
+        "firebase.json",
+        "**/.*",
+        "**/node_modules/**"
+      ],
+      "rewrites": [
+        {
+          "source": "**",
+          "destination": "/index.html"
+        }
+      ]
+    }
+  ]
+}

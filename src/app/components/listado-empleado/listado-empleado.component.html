@@ -1,0 +1,40 @@
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-body">
+            <span class="h3">Listado de registros</span>
+            <button class="btn btn-dark float-end btn-lg" routerLink="/registro">Nuevo registro</button>
+            <table class="table table-striped mt-5">
+                <thead>
+                  <tr>
+                    
+                    <th>Fecha Inicio</th>
+                    <th>Hora entrada</th>
+                    <th>Fecha Salida</th>
+                    <th>Hora Salida</th>
+                    <th>H. Ordinarias</th>
+                    <th>H. Extras</th>                    
+                    <th>Observaciones</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let registro of registros">
+                    
+                    <td>{{registro.Fecha_inicio}}</td>
+                    <td>{{registro.Hora_inicio}}</td>
+                    <td>{{registro.Fecha_fin}}</td>
+                    <td>{{registro.Hora_fin}}</td>
+                    <td>{{registro.Horas_Ord}}</td>
+                    <td>{{registro.Horas_Ext}}</td>                    
+                    <td>{{registro.Observaciones}}</td>
+                    <td>
+                        <i (click)="eliminarRegistro(registro.id)" class="fas fa-trash-alt float-end me-3 fa-lg"></i>
+                        <i  class="fal fa-edit float-end me-2 fa-lg" [routerLink]="['/editarRegistro', registro.id]"></i>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+
+        </div>
+    </div>
+</div>

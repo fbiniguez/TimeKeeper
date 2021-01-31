@@ -1,0 +1,28 @@
+<div class="row">
+    <div id="login" class="col-lg-4 offset-lg-4 col-md-6 offset-md-3
+        col-12">
+        <h2 class="text-center text-white mt-5">Login en el sistema</h2>
+
+
+        <form (submit)="tryLogin()" [formGroup]="loginForm">
+            <div class="form-group">
+               
+                <input id="correo" formControlName="correo"
+                    class="form-control mt-3" type="email"
+                    placeholder="Correo electrónico" required>
+            </div>
+            <div class="form-group">
+                
+                <input formControlName="password"
+                    class="form-control mt-3" type="password"
+                    placeholder="Contraseña" autocomplete="on" required>
+            </div>
+            <label class="bg-warning">{{errorMessaje}}</label>
+            <label class="bg-success">{{errorMessaje}}</label>
+            <button type="submit" class="btn btn-secondary mt-3 mb-2">
+                Entrar
+            </button>
+            
+        </form>
+    </div>
+</div>

@@ -1,5 +1,8 @@
 import { Component } from '@angular/core';
 
+//servicios
+import { EmpleadoService } from '../app/services/empleado.service';
+
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
@@ -7,4 +10,8 @@ import { Component } from '@angular/core';
 })
 export class AppComponent {
   title = 'timeKeeper';
+
+  constructor(
+    private empleadoService: EmpleadoService
+  ){}
 }
