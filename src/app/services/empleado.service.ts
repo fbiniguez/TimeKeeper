@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { AngularFirestore, AngularFirestoreModule  } from '@angular/fire/firestore';
 import { AngularFireAuth } from '@angular/fire/auth';
 import { Observable } from 'rxjs';
+import * as firebase from 'firebase';
 
 
 @Injectable({
@@ -29,10 +30,22 @@ export class EmpleadoService {
   }
 
   eliminarEmpleado(id: string): Promise<any> {
+    console.log('borrando empleado: ', id)
     return this.firestore.collection('empleados').doc(id).delete();
   }
 
   getUnEmpleado(id: string): Observable<any> {
+    //return this.firestore.collection('empleados').doc().collection.doc(id)
+    console.log('id desde empleado service',id);
+    if(id){
+      return this.firestore.collection('empleados', ref => ref.where('uid', '==', id)).valueChanges();
+    }
+    
+
+    //return this.firestore.collection('empleados').doc(id).snapshotChanges();
+    //return this.firestore.collection('empleados', ref => ref.where(doc(id)==id)).snapshotChanges();
+  }
+  returnEmpleadoData(id: string): Observable<any>{
     return this.firestore.collection('empleados').doc(id).snapshotChanges();
   }
   

@@ -11,6 +11,7 @@ import { RegistroComponent } from './components/registro/registro.component';
 const routes: Routes = [
   {path :'', redirectTo:'login', pathMatch: 'full'},
   {path : 'listadoEmpleado', component: ListadoEmpleadoComponent},
+  {path : 'listadoEmpleado/:id', component: ListadoEmpleadoComponent},
   {path : 'login', component: LoginComponent},
   {path : 'crearEmpleado', component: CrearEmpleadoComponent},
   {path : 'editarEmpleado/:id', component: CrearEmpleadoComponent},

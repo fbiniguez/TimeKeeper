@@ -7,6 +7,7 @@ import { AuthService } from 'src/app/services/auth.service';
 import * as firebase from 'firebase';
 import { NavbarComponent } from '../navbar/navbar.component';
 import { ToastrService } from 'ngx-toastr';
+import { AngularFireAuth } from 'angularfire2/auth';
 
 @Component({
   selector: 'app-login',
@@ -15,7 +16,7 @@ import { ToastrService } from 'ngx-toastr';
   providers: [NavbarComponent]
 })
 export class LoginComponent implements OnInit {
-  //usuarios: Observable<any[]>;
+  
   loginForm: FormGroup;
   constructor(
     private fb:FormBuilder,
@@ -23,7 +24,8 @@ export class LoginComponent implements OnInit {
     private router: Router,
     private navbar: NavbarComponent,
     private toastr: ToastrService,
-    private aRoute: ActivatedRoute
+    private aRoute: ActivatedRoute,
+    private firebaseAuth: AngularFireAuth,
   ) { 
     this.loginForm = this.fb.group({
       correo: ['', Validators.required],
@@ -39,27 +41,54 @@ export class LoginComponent implements OnInit {
   async tryLogin(){
     const user = firebase.auth().currentUser;
     if(user){
+      //console.log(user);
       //si hay un usuario activo lo muestra en el navbar
-      this._auth.user$.emit(user);
-      this._auth.isLoggedIn$.emit(true);
-      this.navbar.ngOnInit();
-      this.router.navigate(['/listadoEmpleado']);
+      //this._auth.user$.emit(user.uid);
+      //this._auth.isLoggedIn$.emit(true);
+      //this.navbar.ngOnInit();
+      this.router.navigate(['/listadoEmpleado', user.uid]);
     }else{
-      //llamada a la funcion de login
-      await this._auth.login(this.loginForm.value.correo, this.loginForm.value.password).then((data)=>{
-        if(user){
-          this.toastr.success('Acceso Login correcto', 'Login', {
-            positionClass: 'toast-bottom-right'
-          })
-          this.navbar.ngOnInit();
-          this.router.navigate(['/listadoEmpleado']);
-        }else{
+      //this.firebaseAuth.auth.signOut();
+      await  this._auth.loginUser(this.loginForm.value.correo, this.loginForm.value.password).then((user)=>{
+        console.log(user.user.uid);
+        let prueba = this._auth.getUser();
+        console.log(prueba);
+       /*  this._auth.shareUser$.subscribe((user)=>{
+          console.log(prueba);
+        }) */
+        this.toastr.success('Acceso Login correcto', 'Login', {
+          positionClass: 'toast-bottom-right'
+        })
+        this.router.navigate(['/listadoEmpleado', user.user.uid]);
+      }).catch((error) => {
+        var errorCode = error.code;
+        var errorMessage = error.message;
+        console.log(errorCode, errorMessage);
+        this.loginForm.reset();
+        this.toastr.error('Email o contraseña incorrectos', 'Login', {
+          positionClass: 'toast-bottom-right'
+        })
+      });
+      /*firebase.auth().signInWithEmailAndPassword(this.loginForm.value.correo, this.loginForm.value.password).then((user) => {
+        console.log(user.user.uid);
+              this._auth.user$.emit(user.user.uid);
+              this._auth.isLoggedIn$.emit(true);
+              this.toastr.success('Acceso Login correcto', 'Login', {
+              positionClass: 'toast-bottom-right'
+            })
+            //this.navbar.ngOnInit();
+            this.router.navigate(['/listadoEmpleado', user.user.uid]);
+    
+        }).catch((error) => {
+          var errorCode = error.code;
+          var errorMessage = error.message;
+          console.log(errorCode, errorMessage);
+          this.loginForm.reset();
           this.toastr.error('Email o contraseña incorrectos', 'Login', {
             positionClass: 'toast-bottom-right'
           })
-        }
-      });
-
+        });
+          */
 
     }
    

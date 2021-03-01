@@ -36,7 +36,7 @@
                         <div class="row">
                             <span class="badge bg-danger" *ngIf="submitted && crearRegistro.invalid" >Es necesario rellenar al menos los dos primeros campos</span>
                             <div class="col">
-                                <button type="text button" class="btn btn-secondary float-none btn-lg mt-3 me-3" routerLink="/listadoEmpleado">Volver</button>
+                                <button type="button" class="btn btn-secondary float-none btn-lg mt-3 me-3" [routerLink]="['/listadoEmpleado', uid]">Volver</button>
                                 <button type="submit button" class="btn btn-dark btn-primary float-none btn-lg mt-3 me-3">Registrar</button>
                                 
                             </div>

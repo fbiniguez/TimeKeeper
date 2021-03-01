@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { AngularFireAuth } from 'angularfire2/auth';
 import { AuthService } from 'src/app/services/auth.service';
 import { ToastrService } from 'ngx-toastr';
+import { EmpleadoService } from 'src/app/services/empleado.service';
 
 @Component({
   selector: 'app-navbar',
@@ -10,40 +11,80 @@ import { ToastrService } from 'ngx-toastr';
 })
 export class NavbarComponent implements OnInit {
   //variables para monitorear el estado del login
-  user = this.firebaseAuth.authState; 
   isLoggedIn = false;
+  isAdmin = false;
+  isRepre = false;
+  loggedUser: any;
+  nombre: string;
+  apellido: string;
   email: string;
+  rol: string;
+ 
 
   constructor(
     private _auth: AuthService,
     private firebaseAuth: AngularFireAuth,
-    private toastr :ToastrService
-    ) { }
+    private toastr :ToastrService,
+    private _empleado: EmpleadoService,
+    ) {
+      
+     }
 
-  ngOnInit() {
-    //subscripcion al even emitter del usuario
-    this._auth.user$.subscribe(user =>{
+
+ngOnInit() {
+  /* await this._auth.shareUser$.subscribe((user)=>{
+    this.loggedUser = user;
+    console.log(this.loggedUser);
+  }) ; */
+
+    this.firebaseAuth.auth.onAuthStateChanged(user=>{
       //asigna el usuario activo a la variable user y asigna el valor de email para mostrarlo en el navBar
+      //console.log(user.uid);
       
-        this.user = user;
-        if(user!==null){this.email = user.email;}else this.email = '';
-      
+      //console.log(this.loggedUser)
+        if(user){
+          this.loggedUser = user.uid;
+          this.email = user.email;
+          this.isLoggedIn = true;
+          console.log('nombre', this.nombre, 'apellido', this.apellido);
+          this.recuperaUsuario();
+        }else {
+          this.email = '';
+          this.isLoggedIn = false;
+        }
 
     });
-    //subscripcion al event emiter del estado logueado
-    this._auth.isLoggedIn$.subscribe(state =>{
-      this.isLoggedIn = state;
-    })
   }
 
+ 
+
   logOut(){
-   
+    this.isLoggedIn = false;
+    this.isAdmin = false;
+    this.isRepre = false;
     this._auth.logout();
-    //this.isLoggedIn$.emit(false);
-    this.ngOnInit();
+    //this.ngOnInit();    
     this.toastr.info('Usuario desconectado del sistema', 'Log-out', {
       positionClass: 'toast-bottom-right'
     })
   }
 
+  recuperaUsuario() {
+    return this._empleado.getUnEmpleado(this.loggedUser).subscribe((empleado) => {
+      if (empleado) {
+        //console.log(empleado);
+        this.nombre = empleado[0].nombre;
+        this.apellido = empleado[0].apellido1;
+        this.isAdmin = empleado[0].checkAdmin;
+        this.isRepre = empleado[0].checkRepresentante;
+        if(empleado[0].checkAdmin){
+          this.rol = 'Administrador';
+        }else if(empleado[0].checkRepresentante){
+          this.rol = 'Representante';
+        }else{
+          this.rol = 'Empleado';
+        } 
+      }
+    });
+}
 }

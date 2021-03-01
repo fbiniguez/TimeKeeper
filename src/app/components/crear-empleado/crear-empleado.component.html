@@ -50,17 +50,18 @@
                     placeholder="Contraseña" formControlName="password">
             </div>
 
-            <div class="checkbox text-white">
-                <label><input formControlName="checkEmpleado" type="checkbox" value="">Empleado</label>
-              </div>
-              <div class="checkbox text-white">
+            <div class="checkbox text-white mt-3">
                 <label><input formControlName="checkRepresentante" type="checkbox" value="">Representante</label>
-              
+                <label><input class= "ms-4" formControlName="checkAdmin" type="checkbox" value="">Administrador</label>                
               </div>
-
-            
-            <button type="submit" class="btn btn-secondary mt-3 mb-2">
+              <div class="checkbox text-white mt-3">                
+                <label><input formControlName="checkActivo" type="checkbox" checked="checked" value="">Empleado en activo</label>              
+              </div>            
+            <button type="submit" class="btn btn-primary float-lg-start btn-lg mt-3 mb-2">
                 Guardar
+            </button>
+            <button type="button" [routerLink]="['/listarEmpleados']" class="btn btn-secondary float-md-end btn-lg mt-3 mb-2">
+                Volver
             </button>
             
         </form>

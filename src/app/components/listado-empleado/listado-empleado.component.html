@@ -1,8 +1,12 @@
 <div class="container mt-4">
     <div class="card">
         <div class="card-body">
-            <span class="h3">Listado de registros</span>
-            <button class="btn btn-dark float-end btn-lg" routerLink="/registro">Nuevo registro</button>
+            
+            <button *ngIf="equal && hayRegistros" class="btn btn-dark float-end btn-lg ms-3 me-3" (click)=printPdf()>Exportar a pdf</button>
+            <button *ngIf="equal" class="btn btn-dark float-end btn-lg ms-3 me-3" routerLink="/registro">Nuevo registro</button>
+            <button *ngIf="!equal" class="btn btn-dark float-end btn-lg ms-3 me-3" routerLink="/listarEmpleados">Volver</button>
+            <form id="print">
+            <span class="h2">Listado de registros de: {{nombre}} {{apellido}}</span>
             <table class="table table-striped mt-5">
                 <thead>
                   <tr>
@@ -28,13 +32,13 @@
                     <td>{{registro.Horas_Ext}}</td>                    
                     <td>{{registro.Observaciones}}</td>
                     <td>
-                        <i (click)="eliminarRegistro(registro.id)" class="fas fa-trash-alt float-end me-3 fa-lg"></i>
-                        <i  class="fal fa-edit float-end me-2 fa-lg" [routerLink]="['/editarRegistro', registro.id]"></i>
+                        <i *ngIf="equal || isAdmin" (click)="eliminarRegistro(registro.id)" class="fas fa-trash-alt float-end me-3 fa-lg"></i>
+                        <i *ngIf="equal || isAdmin" class="fal fa-edit float-end me-2 fa-lg" [routerLink]="['/editarRegistro', registro.id]"></i>
                     </td>
                   </tr>
                 </tbody>
               </table>
-
+            </form>
         </div>
     </div>
 </div>

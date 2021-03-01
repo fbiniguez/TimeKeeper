@@ -23,7 +23,7 @@ export class CrearEmpleadoComponent implements OnInit {
     private _empleadoService:EmpleadoService,
     private router: Router,
     private toastr: ToastrService,
-    private aRoute: ActivatedRoute,
+    private rutaActiva: ActivatedRoute,
     private _auth: AuthService
     ) {
     this.crearEmpleado = this.fb.group({
@@ -33,16 +33,20 @@ export class CrearEmpleadoComponent implements OnInit {
       departamento: ['', Validators.required],
       email: ['', Validators.required],
       password: ['', Validators.required],
-      checkEmpleado: [],
+      checkAdmin: [],
       checkRepresentante: [],  
+      checkActivo: [] 
     })
-    this.id = this.aRoute.snapshot.paramMap.get('id');
-    console.log(this.id)
+    this.id = this.rutaActiva.snapshot.params.id;
+    
+    if(this.id === undefined){
+      this.id = null;
+    }
    }
 
   ngOnInit(): void {
     this.editarEmpleado();
-    
+    //this.guardarEditarEmpleado();
   }
   guardarEditarEmpleado(){
     this.titulo = 'Nuevo Empleado';
@@ -69,8 +73,9 @@ export class CrearEmpleadoComponent implements OnInit {
       departamento: this.crearEmpleado.value.departamento,
       email: this.crearEmpleado.value.email,
       password: this.crearEmpleado.value.password,
-      checkEmpleado: this.crearEmpleado.value.checkEmpleado,
-      checkRepresentante: this.crearEmpleado.value.checkRepresentante, 
+      checkAdmin: this.crearEmpleado.value.checkAdmin,
+      checkRepresentante: this.crearEmpleado.value.checkRepresentante,
+      checkActivo: this.crearEmpleado.value.checkActivo,
       fechaActualizacion: new Date()
     }
 
@@ -92,14 +97,15 @@ export class CrearEmpleadoComponent implements OnInit {
       departamento: this.crearEmpleado.value.departamento,
       email: this.crearEmpleado.value.email,
       password: this.crearEmpleado.value.password,
-      checkEmpleado: this.crearEmpleado.value.checkEmpleado,
+      checkAdmin: this.crearEmpleado.value.checkAdmin,
       checkRepresentante: this.crearEmpleado.value.checkRepresentante,
+      checkActivo: this.crearEmpleado.value.checkActivo,
       fechaCreacion: new Date(),
       fechaActualizacion: new Date(),
       uid: ''
     }
     this.spinner = true;
-    await this._auth.registerUser(empleado.email, empleado.apellido1).then((user)=>{
+    await this._auth.registerUser(empleado.email, empleado.password).then((user)=>{
       console.log('nuevo usuario', user);
       if(user){
         console.log('usuario devuelto por auth',user);
@@ -145,12 +151,12 @@ export class CrearEmpleadoComponent implements OnInit {
     this.spinner = false;
     */
   }
-editarEmpleado(){
+async editarEmpleado(){
   
   if(this.id !==null){
     this.titulo = 'Editar empleado';
     this.spinner = true;
-    this._empleadoService.getUnEmpleado(this.id).subscribe(data=>{
+    await this._empleadoService.returnEmpleadoData(this.id).subscribe(data=>{
       this.spinner = false;
       this.crearEmpleado.setValue({
         nombre: data.payload.data()['nombre'],
@@ -159,8 +165,9 @@ editarEmpleado(){
         departamento: data.payload.data()['departamento'],
         email: data.payload.data()['email'],
         password: data.payload.data()['password'],
-        checkEmpleado: data.payload.data()['checkEmpleado'],
+        checkAdmin: data.payload.data()['checkAdmin'],
         checkRepresentante: data.payload.data()['checkRepresentante'],
+        checkActivo: data.payload.data()['checkActivo'],
        
       })
     })
