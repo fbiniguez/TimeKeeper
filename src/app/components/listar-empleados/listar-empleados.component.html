@@ -3,7 +3,6 @@
         <div class="card-body">
             <span class="h3">Listado de Empleados</span>
             <button *ngIf="isAdmin" class="btn btn-dark float-end btn-lg" routerLink="/crearEmpleado">Nuevo Empleado</button>
-            <!-- <button *ngIf="!isAdmin" class="btn btn-dark float-end btn-lg" routerLink="/listarEmpleados">Registros</button> -->
             <h5 class="mt-5" *ngIf="empleados.length == 0">No hay registros para mostrar</h5>
             <table *ngIf="empleados.length > 0" class="table table-striped mt-5">
                 <thead>
@@ -25,9 +24,9 @@
                     <td *ngIf="empleado.checkActivo">{{empleado.email}}</td>
                   
                     <td>
-                      <i *ngIf="isAdmin" title="Borrar Empleado" (click)="confirmarEliminar(empleado.id)" class="btn fas fa-trash-alt fa-lg text-danger float-end" type="button"></i>
-                      <i *ngIf="isAdmin" title="Editar Empleado" class="btn fas fa-edit fa-lg text-info p-2 float-end" type="button" [routerLink]="['/editarEmpleado', empleado.id]"></i>
-                      <i *ngIf="isRepre || isAdmin" title="Mostrar registros empleado" class="btn far fa-eye p-2 float-end" type="button" [routerLink]="['/listadoEmpleado', empleado.uid]"></i>
+                      <i *ngIf="isAdmin && empleado.checkActivo" title="Borrar Empleado" (click)="confirmarEliminar(empleado.id)" class="btn fas fa-trash-alt fa-lg text-danger float-end" type="button"></i>
+                      <i *ngIf="isAdmin && empleado.checkActivo" title="Editar Empleado" class="btn fas fa-edit fa-lg text-info p-2 float-end" type="button" [routerLink]="['/editarEmpleado', empleado.id]"></i>
+                      <i *ngIf="isRepre && empleado.checkActivo || isAdmin && empleado.checkActivo" title="Mostrar registros empleado" class="btn far fa-eye p-2 float-end" type="button" [routerLink]="['/listadoEmpleado', empleado.uid]"></i>
 
                     </td>
                   </tr>

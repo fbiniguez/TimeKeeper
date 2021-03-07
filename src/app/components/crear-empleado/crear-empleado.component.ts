@@ -1,15 +1,17 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import * as firebase from 'firebase';
+
 import { ToastrService } from 'ngx-toastr';
 import { AuthService } from 'src/app/services/auth.service';
 import { EmpleadoService } from 'src/app/services/empleado.service';
 
+
 @Component({
   selector: 'app-crear-empleado',
   templateUrl: './crear-empleado.component.html',
-  styleUrls: ['./crear-empleado.component.css']
+  styleUrls: ['./crear-empleado.component.css'],
+  
 })
 export class CrearEmpleadoComponent implements OnInit {
   crearEmpleado: FormGroup;
@@ -24,7 +26,7 @@ export class CrearEmpleadoComponent implements OnInit {
     private router: Router,
     private toastr: ToastrService,
     private rutaActiva: ActivatedRoute,
-    private _auth: AuthService
+    private _auth: AuthService,
     ) {
     this.crearEmpleado = this.fb.group({
       nombre: ['', Validators.required],
@@ -46,26 +48,30 @@ export class CrearEmpleadoComponent implements OnInit {
 
   ngOnInit(): void {
     this.editarEmpleado();
-    //this.guardarEditarEmpleado();
   }
+
   guardarEditarEmpleado(){
     this.titulo = 'Nuevo Empleado';
     this.submitted = true;
+    //chequea validez formulario
     if(this.crearEmpleado.invalid){
       return;
     }
+    //si no hay id de empleado, nuevo empleado
     if(this.id === null){
       this.nuevoEmpleado();
-      
+     //si lo hay, editar empleado 
     }else{
+      this.titulo = 'Editar Empleado';
       this.actualizarEmpleado(this.id);
     }
 
     
   }
 
-  actualizarEmpleado(id: string){
+  async actualizarEmpleado(id: string){
     this.spinner=true;
+    //contructor objeto empleado
     const empleado: any = {
       nombre: this.crearEmpleado.value.nombre,
       apellido1: this.crearEmpleado.value.apellido1,
@@ -78,18 +84,27 @@ export class CrearEmpleadoComponent implements OnInit {
       checkActivo: this.crearEmpleado.value.checkActivo,
       fechaActualizacion: new Date()
     }
-
-    this._empleadoService.updateEmpleado(id, empleado).then(()=>{
-      this.spinner = false;
-      this.toastr.info('El empleado fue modificado con éxito', 'Modificacion de empleados',{
+    try {
+      //llamada a la funcion para actualizar datos empleado
+      await this._empleadoService.updateEmpleado(id, empleado).then(()=>{
+        this.spinner = false;
+        //mensaje de exito tras actualizar
+        this.toastr.info('El empleado fue modificado con éxito', 'Modificacion de empleados',{
+          positionClass: 'toast-bottom-right'
+        })
+        this.router.navigate(['/listarEmpleados']);
+      })
+      //mensaje en caso de producirse un error
+    } catch (error) {
+      this.toastr.error('Error en la operacion de modificación del empleado', 'Modificacion de empleados',{
         positionClass: 'toast-bottom-right'
       })
-      this.router.navigate(['/listarEmpleados']);
-    })
+    }
+
   }
 
  async nuevoEmpleado(){
-    
+    //constructor objeto empleado
     const empleado: any = {
       nombre: this.crearEmpleado.value.nombre,
       apellido1: this.crearEmpleado.value.apellido1,
@@ -104,60 +119,51 @@ export class CrearEmpleadoComponent implements OnInit {
       fechaActualizacion: new Date(),
       uid: ''
     }
-    this.spinner = true;
-    await this._auth.registerUser(empleado.email, empleado.password).then((user)=>{
-      console.log('nuevo usuario', user);
+    
+    try {
+      this.spinner = true;
+      //llamada al servicio auth para crear nuevo usuario
+      await this._auth.registerUser(empleado.email, empleado.password).then((user)=>{  
+        //si la creacion del nuevo usuario en el servicio de autentificacion es exitosa muestra mensaje 
+        //Se almacena el nuevo usuario en la base de datos con el servicio empleadoService
       if(user){
-        console.log('usuario devuelto por auth',user);
-        console.log('uid', user.user.uid)
         empleado.uid = user.user.uid; 
         this._empleadoService.crearEmpleado(empleado).then(()=>{
           this.toastr.success('Creacion de nuevos empleados','Nuevo empleado creado con éxito',{
             positionClass:'toast-bottom-right'
           });
-          console.log(empleado.email);
-          this.spinner = false;
+          //navegar vista empleados
           this.router.navigate(['/listarEmpleados']);
         }).catch(error =>{
-          console.log(error);
+          //mensaje error si no se almacenan correctamente los datos del usuario
+          this.toastr.error('Creacion de nuevos empleados','Error de guardado del nuevo usuario',{
+            positionClass:'toast-bottom-right'
+             })
+          })
+         }
+      })
+    } catch (error) {
+      //mensaje error si no se crea corerctamente el usuario
+      this.toastr.error('Creacion de nuevos empleados','Error en la creacion del nuevo usuario',{
+        positionClass:'toast-bottom-right'
         })
+    }
+        //limpiar formulario
         this.crearEmpleado.reset();
         this.submitted = false;
         this.spinner = false;
-
-      }
-
-    }).catch(error =>{
-      console.log('Ocurrio un error: ', error.code);
-      console.log('Ocurrio un error: ', error.message);
-    })
-   /*
-    this._empleadoService.crearEmpleado(empleado).then(()=>{
-      this.toastr.success('Creacion de nuevos empleados','Nuevo empleado creado con éxito',{
-        positionClass:'toast-bottom-right'
-      });
-      console.log(empleado.email);
-      firebase.auth().createUserWithEmailAndPassword(empleado.email, empleado.departamento).catch(err=>{
-        console.log('Ocurrio un error: ', err.code);
-        console.log('Ocurrio un error: ', err.message);
-      })
-      this.spinner = false;
-      this.router.navigate(['/listarEmpleados']);
-    }).catch(error =>{
-      console.log(error);
-    })
-    this.crearEmpleado.reset();
-    this.submitted = false;
-    this.spinner = false;
-    */
   }
-async editarEmpleado(){
   
+  
+editarEmpleado(){
+  //Comprobacion de que se esta pasando un id de empleado
   if(this.id !==null){
     this.titulo = 'Editar empleado';
     this.spinner = true;
-    await this._empleadoService.returnEmpleadoData(this.id).subscribe(data=>{
+    //llamada a la funcion que recupera los datos almacenados
+    this._empleadoService.returnEmpleadoData(this.id).subscribe(data=>{
       this.spinner = false;
+      //muestra los datos recuperados en el formulario
       this.crearEmpleado.setValue({
         nombre: data.payload.data()['nombre'],
         apellido1: data.payload.data()['apellido1'],
@@ -167,10 +173,9 @@ async editarEmpleado(){
         password: data.payload.data()['password'],
         checkAdmin: data.payload.data()['checkAdmin'],
         checkRepresentante: data.payload.data()['checkRepresentante'],
-        checkActivo: data.payload.data()['checkActivo'],
-       
+        checkActivo: data.payload.data()['checkActivo']       
+          })
       })
-    })
+    }
   }
-}
 }

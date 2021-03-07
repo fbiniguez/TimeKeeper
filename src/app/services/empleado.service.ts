@@ -18,9 +18,10 @@ export class EmpleadoService {
       
      }
 
-  getEmpleados(): Observable<any> {
+  getEmpleados(): Observable<any> { 
     return this.firestore.collection('empleados', ref => ref.orderBy('fechaCreacion', 'asc')).snapshotChanges();
   }
+
   crearEmpleado(empleado: any): Promise<any> {
     return this.firestore.collection('empleados').add(empleado); 
   }
@@ -30,34 +31,17 @@ export class EmpleadoService {
   }
 
   eliminarEmpleado(id: string): Promise<any> {
-    console.log('borrando empleado: ', id)
     return this.firestore.collection('empleados').doc(id).delete();
   }
 
   getUnEmpleado(id: string): Observable<any> {
-    //return this.firestore.collection('empleados').doc().collection.doc(id)
-    console.log('id desde empleado service',id);
     if(id){
       return this.firestore.collection('empleados', ref => ref.where('uid', '==', id)).valueChanges();
     }
-    
-
-    //return this.firestore.collection('empleados').doc(id).snapshotChanges();
-    //return this.firestore.collection('empleados', ref => ref.where(doc(id)==id)).snapshotChanges();
   }
+
   returnEmpleadoData(id: string): Observable<any>{
     return this.firestore.collection('empleados').doc(id).snapshotChanges();
   }
   
-  signIn (email: string, password: string) {
-    this.angularFireAuth.auth.signInWithEmailAndPassword(email, password).then(res=>{
-      console.log('Estas dentro de la app');
-    }).catch(err=>{
-      console.log('Ocurrio un error:', err.message);
-    });
-  }
-  signOut(){
-    this.angularFireAuth.auth.signOut();
-  }
-
 }

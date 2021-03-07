@@ -23,9 +23,8 @@ import { NavbarComponent } from './components/navbar/navbar.component';
 import { LoginComponent } from './components/login/login.component';
 import { RegistroComponent } from './components/registro/registro.component';
 import { environment } from 'src/environments/environment';
-import { fromEventPattern } from 'rxjs';
 import { ListarEmpleadosComponent } from './components/listar-empleados/listar-empleados.component';
-import { PruebaComponent } from './components/prueba/prueba.component';
+
 
 
 
@@ -38,8 +37,7 @@ import { PruebaComponent } from './components/prueba/prueba.component';
     NavbarComponent,
     LoginComponent,
     RegistroComponent,
-    ListarEmpleadosComponent,
-    PruebaComponent
+    ListarEmpleadosComponent
   ],
   imports: [
     BrowserModule,

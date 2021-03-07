@@ -2,11 +2,12 @@
     <div class="card">
         <div class="card-body">
             
-            <button *ngIf="equal && hayRegistros" class="btn btn-dark float-end btn-lg ms-3 me-3" (click)=printPdf()>Exportar a pdf</button>
+            <button *ngIf="equal || isAdmin || isRepre" class="btn btn-dark float-end btn-lg ms-3 me-3" (click)=printPdf()>Exportar a pdf</button>
             <button *ngIf="equal" class="btn btn-dark float-end btn-lg ms-3 me-3" routerLink="/registro">Nuevo registro</button>
             <button *ngIf="!equal" class="btn btn-dark float-end btn-lg ms-3 me-3" routerLink="/listarEmpleados">Volver</button>
+            <form>
+            <span id="cabecera" class="h2">Listado de registros de: {{nombre}} {{apellido}}</span>
             <form id="print">
-            <span class="h2">Listado de registros de: {{nombre}} {{apellido}}</span>
             <table class="table table-striped mt-5">
                 <thead>
                   <tr>
@@ -22,6 +23,7 @@
                   </tr>
                 </thead>
                 <tbody>
+                  <span *ngIf="!hayRegistros" class="h4">No existen registros en el sistema de este usuario</span>
                   <tr *ngFor="let registro of registros">
                     
                     <td>{{registro.Fecha_inicio}}</td>
@@ -38,6 +40,7 @@
                   </tr>
                 </tbody>
               </table>
+            </form>
             </form>
         </div>
     </div>

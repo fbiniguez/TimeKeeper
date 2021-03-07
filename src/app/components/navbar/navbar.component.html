@@ -2,7 +2,9 @@
     <div class="container-fluid">
         <span class="navbar-brand mb-0 text-uppercase">Time-Keeper</span>
         <span *ngIf="!isLoggedIn" class="navbar-brand mb-0 h5 text-center float-none">Registro de la jornada laboral</span>
-        <span *ngIf="isLoggedIn" class="navbar-brand mb-0 h5 text-center float-start">Bienvenido/a {{nombre}} rol: {{rol}}</span>
+        <span *ngIf="isLoggedIn" class="navbar-brand mb-0 h5 text-center float-start">Bienvenido/a:  {{nombre}} {{apellido}}</span>
+        <span *ngIf="isLoggedIn" class="navbar-brand mb-0 h5 text-center float-start">{{rol}}</span>
+        
         
         <div>
           <button *ngIf="isLoggedIn" class="btn btn-dark float-end btn-lg float-end" routerLink="/login" (click)="logOut()">Logout</button>

@@ -4,7 +4,6 @@ import { CrearEmpleadoComponent } from './components/crear-empleado/crear-emplea
 import { ListadoEmpleadoComponent } from './components/listado-empleado/listado-empleado.component';
 import { ListarEmpleadosComponent } from './components/listar-empleados/listar-empleados.component';
 import { LoginComponent } from './components/login/login.component';
-import { PruebaComponent } from './components/prueba/prueba.component';
 import { RegistroComponent } from './components/registro/registro.component';
 
 
@@ -18,7 +17,6 @@ const routes: Routes = [
   {path : 'registro', component: RegistroComponent},
   {path : 'editarRegistro/:id', component: RegistroComponent},
   {path : 'listarEmpleados', component: ListarEmpleadosComponent},
-  {path : 'prueba', component: PruebaComponent},
   {path :'**', redirectTo:'login', pathMatch: 'full'},
 ];
 

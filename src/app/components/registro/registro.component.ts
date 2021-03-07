@@ -1,14 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, FormControl, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { AngularFireAuth } from 'angularfire2/auth';
 import * as firebase from 'firebase';
-import * as _moment from 'moment';
 import { ToastrService } from 'ngx-toastr';
-import { AuthService } from 'src/app/services/auth.service';
 import { RegistroService } from 'src/app/services/registro.service';
 
-const moment = _moment;
 
 @Component({
   selector: 'app-registro',
@@ -21,8 +17,6 @@ export class RegistroComponent implements OnInit {
   spinner = false;
   user = firebase.auth().currentUser;
   uid: string; 
-  currentTime: any;
-  currentDate: any;
   registros: any[] = [];
   titulo = 'Nuevo registro horario';
   submitted = false;
@@ -30,12 +24,12 @@ export class RegistroComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private _registro: RegistroService,
-    private firebaseAuth: AngularFireAuth,
     private router: Router,
     private toastr: ToastrService,
     private aRoute: ActivatedRoute,
-    private _auth: AuthService
+
     ) {
+      //instancia de formulario
       this.crearRegistro = this.fb.group({
         Fecha_inicio: ['', Validators.required],
         Hora_inicio: ['', Validators.required],
@@ -45,44 +39,38 @@ export class RegistroComponent implements OnInit {
         Observaciones: [''],
         Horas_Ext: [''],
       })
+      //almacenamos el identificador de registro
       this.id = this.aRoute.snapshot.paramMap.get('id');
      
      }
 
   ngOnInit() {
     this.editarRegistro();
-    /*this._auth.user$.subscribe(user =>{
-      //asigna el usuario activo a la variable user      
-    
-        //this.uid = user.uid;
-        console.log('UID desde el ngOninit: ',this.uid);
-        if(user){this.uid = user.uid;}else this.uid = '';
-      });*/
   }
   
 
   guardarEditarRegistro(){
+    //almacenado datos usuario actual
     this.user = firebase.auth().currentUser;
     this.uid = firebase.auth().currentUser.uid;
     this.titulo = 'Nuevo registro horario';
     this.submitted = true;
-    console.log('guardar editar',this.uid);
-    
+    //detener si el formulario no es valido
     if(this.crearRegistro.invalid){
       return;
     }
+    //si no hay id de registro, llamar a nuevo registro, si no, actualizar registro
     if(this.id === null){
       this.nuevoRegistro();
     }else{
       this.titulo = 'Editar registro horario';
       this.actualizarRegistro(this.id);
-    }
-
-    
+    }    
   }
 
 
   async nuevoRegistro(){
+    //constructor de objeto registro
     const registro: any = {
       Fecha_inicio: this.crearRegistro.value.Fecha_inicio,
       Hora_inicio: this.crearRegistro.value.Hora_inicio,
@@ -95,21 +83,27 @@ export class RegistroComponent implements OnInit {
       fechaActualizacion: new Date(),
       uid: ''
     }
-    let user = await firebase.auth().currentUser;
+    //añadir identificador de usuario a registro
+    let user = firebase.auth().currentUser;
     registro.uid = user.uid;
     this.spinner = true;
-    this._registro.crearRegistro(registro).then((data)=>{
-      console.log('resultaod promesa guarda registrio', data);
-      //console.log('resultaod promesa guarda registrio', data.payload.doc.id);
+    //enviar objeto registro a servicio para almacenamiento
+    await this._registro.crearRegistro(registro).then((data)=>{
+      if(data){
+      // mensaje de aviso si el guardado es exitoso
       this.toastr.success('Creacion de nuevos registros','Nuevo registro creado con éxito',{
         positionClass:'toast-bottom-right'    
-    });
+          });
+        }
       this.spinner = false;
+      //redireccion a la vista de lista de registros del empleado
       this.router.navigate(['/listadoEmpleado', registro.uid]);
     }).catch(error =>{
-      console.log('Ocurrio un error: ', error.code);
-      console.log('Ocurrio un error: ', error.message);
+      this.toastr.error('Creacion de nuevos registros',error.message,{
+        positionClass:'toast-bottom-right'    
+          });
     })
+    //limpieza de formulario
     this.crearRegistro.reset();
     this.submitted = false;
     this.spinner = false;
@@ -119,7 +113,7 @@ export class RegistroComponent implements OnInit {
   async actualizarRegistro(id: string){
     
     this.spinner = true;
-
+    //constructor objeto registro
     const registro: any = {
       Fecha_inicio: this.crearRegistro.value.Fecha_inicio,
       Hora_inicio: this.crearRegistro.value.Hora_inicio,
@@ -131,36 +125,36 @@ export class RegistroComponent implements OnInit {
       uid: this.uid,
       fechaActualizacion: new Date()
     }
-    
+    //llamada al servicio para guardar los datos actualizados
     await this._registro.actualizarRegistro(id, registro).then(()=>{
+      //si la actualizacion es correcta muestra mensaje y redirige a listadoEmpleado
       if(registro){
         this.spinner = false;
-        this.toastr.info('El registro fue modificado con éxito', 'Modificacion de registros',{
+        this.toastr.success('El registro fue modificado con éxito', 'Modificacion de registros',{
           positionClass: 'toast-bottom-right'
         })
         this.router.navigate(['/listadoEmpleado', registro.uid]);
       }else{
-        console.log('ha ocurrido un error');
+        this.toastr.error('Error en la modificacion del registro', 'Creacion de nuevos registros',{
+          positionClass:'toast-bottom-right'    
+            });
         return;
       }
 
     })
     
   }
-  redirigir(){
-    console.log('purueba redirigia');
-    this.router.navigate(['/listadoEmpleado', this.uid]);
-  }
 
-  async editarRegistro(){
-    this.uid = await firebase.auth().currentUser.uid;
-    console.log('id de registro a editar',this.id);
+ editarRegistro(){
+    //almacenado del identificador de usuario
+    this.uid = firebase.auth().currentUser.uid;
+    //si existe un identificador se recuperan datos
     if(this.id){
       this.titulo = 'Editar registro horario';
       this.spinner = true;
-      console.log('editarregistro', this.uid)
-      await this._registro.getUnRegistro(this.id, this.uid).subscribe(data=>{
-
+      //obtener los datos del registro
+      this._registro.getUnRegistro(this.id, this.uid).subscribe(data=>{
+            //rellenar formulario de registro con valores almacenados
             this.crearRegistro.setValue({
               Fecha_inicio: data.payload.data()['Fecha_inicio'],
               Hora_inicio: data.payload.data()['Hora_inicio'],
@@ -174,77 +168,6 @@ export class RegistroComponent implements OnInit {
           this.spinner = false;
         } 
   }
- /* 
-  //funcion para almacenar un registro
-  async saveRegistry(){
-    const registro = {
-      uid: '',
-      ...this.crearRegistro.value
-    }
-    console.log(this.crearRegistro.value);
-    //await this._registro.registrar(this.registerForm.value, this.uid);
-    let user = await firebase.auth().currentUser;
-    registro.uid = user.uid;
-    console.log(registro);
-    this._registro.crearRegistro(registro).then(()=>{
-      this.toastr.success('Registro añadido con exito', 'Añadir registros',{
-        positionClass: 'toast-bottom-right'
-      })
-    //console.log('Registro creado con exito');
-    //this._registro.readDoc(user.uid);
-  });
-
-  }
-  */
-  /*
-  async readData(){
-    let user = await firebase.auth().currentUser;
-    console.log(user.uid);
-    let result = this._registro.recuperarRegistroUsuario(user.uid).subscribe((data)=>{
-      this.registros = [];
-      data.forEach((element: any)=>{
-        this.registros.push(element.payload.doc.data())
-      });
-    });
-   console.log(this.registros)
-  }
-  async leerRegistros(){
-    //Leer los datos de registros guardados funciona
-  let user = await firebase.auth().currentUser;
-  var firestore = firebase.firestore();
-  var docref = firestore.collection('empleados').doc(user.uid).collection('registros');
-  var registros: any[] = [];
-  return docref.orderBy("Fecha_inicio", "asc").onSnapshot((doc)=>{
-    doc.forEach((datos)=>{
-      console.log(datos.data()['Fecha_inicio']);
-      console.log(datos.data());
-      registros.push(datos.data())
-      //return registros;
-      console.log(registros);
-    })
-  })
-  }*/
-
-  //funcion para recuperar un registrio de firestore
- /* async recuperaRegistroUsuario(){
-    let user = await firebase.auth().currentUser;
-    let uid = user.uid;
-    console.log(uid);
-    this._registro.recuperarRegistroUsuario(uid).subscribe(data=>{
-      console.log('Desde el registro Component: ',data);
-      this.registerForm.setValue({
-        Fecha_inicio: data.payload.data()['Fecha_inicio'],
-        Hora_inicio: data.payload.data()['Hora_inicio'],
-        Fecha_fin: data.payload.data()['Fecha_fin'],
-        Hora_fin: data.payload.data()['Hora_fin'],
-        Horas_Ord: data.payload.data()['Horas_Ord'],
-        Horas_Ext: data.payload.data()['Horas_Ext'],
-        Observaciones: data.payload.data()['Observaciones']
-      });
-
-    })
-  }*/
  
-
 }
 
